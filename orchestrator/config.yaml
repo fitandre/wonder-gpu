@@ -1,0 +1,45 @@
+# Orchestrator configuration. Copy to config.local.yaml and fill in the
+# gcp: section before running -- config.yaml stays generic/committable,
+# config.local.yaml should be gitignored.
+
+gcp:
+  project_id: "YOUR_GCP_PROJECT_ID"
+  vertex_region: "us-central1"
+  use_global_endpoint: true
+
+repo:
+  path: "/workspace/kayfabe"
+  base_branch: "master"
+  work_branch_prefix: "loop/"
+
+routing:
+  design_or_spike: gemini-1.5-pro
+  implementation: gemini-1.5-flash
+  verification: gemini-1.5-flash
+  chore: gemini-2.0-flash
+  default: gemini-1.5-flash
+
+  # Auto-escalation: if a sonnet-5 task fails this many times in a row, retry
+  # once on opus-5 before pausing for a human. Costs more per call but avoids
+  # burning many cheap-but-wrong Sonnet retries on a task that actually needed
+  # more reasoning depth.
+  escalate_after_failures: 3
+
+# Anything touching these paths ALWAYS requires human sign-off before the
+# loop applies the change, regardless of task_kind -- this mirrors the
+# project's own unsafe-code and security discipline (see roadmap.md Section 3).
+human_gate_required_for_paths:
+  - "crates/kayfabe-linux-raw/**"
+  - "crates/kayfabe-qemu-raw/**"
+  - "**/*_unsafe.rs"
+  - "docs/design/core_security_threat_model.md"
+  - "crates/kayfabe-core/**"        # tenant axis / RmGraph changes (Phase 4)
+
+# Phase gates (roadmap.md Section 4 "Exit criteria") are ALWAYS a human
+# checkpoint -- the loop stops and writes a gate report, it never
+# self-certifies a phase as passed. See main.py PHASE_GATE_IS_HUMAN_ONLY.
+
+testing:
+  local_cmd: "cargo test --workspace --no-fail-fast"
+  gpu_job_image: "gcr.io/YOUR_GCP_PROJECT_ID/kayfabe-gpu-test-runner:latest"
+  gpu_job_timeout_seconds: 3600

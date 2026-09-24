@@ -1,0 +1,4 @@
+anthropic[vertex]>=0.44
+google-cloud-aiplatform>=1.70
+kubernetes>=30.1
+pyyaml>=6.0

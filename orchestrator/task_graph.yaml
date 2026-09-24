@@ -1,0 +1,118 @@
+# Task graph derived from kayfabe-production-roadmap.md.
+#
+# Two granularities live here on purpose:
+#
+# 1. "phases" (below) -- coarse, model-tier-level PLANNING buckets, one row per
+#    (phase, model tier). This is what estimate_cost.py reads to produce the
+#    token/cost projection. Numbers are estimates from the roadmap's own
+#    complexity signals (gap analysis, spike framing, non-goals), not measurements.
+#    Expect them to be wrong -- especially for P1/P2/P5, which are genuine
+#    reverse-engineering work with no spec to bound iteration count.
+#
+# 2. "tasks" (empty here, filled in as you go) -- the real, fine-grained work
+#    items main.py actually executes, one per ticket created from the
+#    roadmap's Section 7 template. Each references a "phase" and a "depends_on"
+#    list. main.py topologically sorts these and ignores the planning buckets
+#    above entirely once real tasks exist for a phase.
+
+phases:
+  - id: P0
+    title: "Close the foundation"
+    depends_on: []
+    requires_gpu: false
+    human_gate: true   # design ruling on the adjudicated ring-forwarding blocker
+    model_buckets:
+      gemini-1.5-pro:    { calls: 40,  avg_input_tokens: 50000, avg_output_tokens: 6000 }
+      gemini-1.5-flash:  { calls: 250, avg_input_tokens: 30000, avg_output_tokens: 3000 }
+      gemini-2.0-flash: { calls: 150, avg_input_tokens: 8000,  avg_output_tokens: 800 }
+    est_gpu_hours: 20   # CI-in-VM sanity only; P0 is mostly the logic/OS layer
+
+  - id: P1
+    title: "Graphics engine & present pipeline"
+    depends_on: [P0]
+    requires_gpu: true
+    human_gate: true    # new attack surface (graphics pushbuffer parsing)
+    model_buckets:
+      gemini-1.5-pro:    { calls: 150, avg_input_tokens: 50000, avg_output_tokens: 6000 }
+      gemini-1.5-flash:  { calls: 500, avg_input_tokens: 30000, avg_output_tokens: 3000 }
+      gemini-2.0-flash: { calls: 300, avg_input_tokens: 8000,  avg_output_tokens: 800 }
+    est_gpu_hours: 150
+
+  - id: P2
+    title: "Windows guest bring-up"
+    depends_on: [P1]
+    requires_gpu: true
+    human_gate: true    # single biggest unknown in the roadmap -- spike verdict first
+    model_buckets:
+      gemini-1.5-pro:    { calls: 200, avg_input_tokens: 50000, avg_output_tokens: 6000 }
+      gemini-1.5-flash:  { calls: 450, avg_input_tokens: 30000, avg_output_tokens: 3000 }
+      gemini-2.0-flash: { calls: 250, avg_input_tokens: 8000,  avg_output_tokens: 800 }
+    est_gpu_hours: 250
+
+  - id: P3
+    title: "Performance & data-plane redesign"
+    depends_on: [P1, P2]
+    requires_gpu: true
+    human_gate: false
+    model_buckets:
+      gemini-1.5-pro:    { calls: 60,  avg_input_tokens: 50000, avg_output_tokens: 6000 }
+      gemini-1.5-flash:  { calls: 300, avg_input_tokens: 30000, avg_output_tokens: 3000 }
+      gemini-2.0-flash: { calls: 150, avg_input_tokens: 8000,  avg_output_tokens: 800 }
+    est_gpu_hours: 100
+
+  - id: P4
+    title: "Multi-tenant isolation"
+    depends_on: [P2]
+    requires_gpu: true
+    human_gate: true    # security-relevant core-crate change (tenant axis)
+    model_buckets:
+      gemini-1.5-pro:    { calls: 80,  avg_input_tokens: 50000, avg_output_tokens: 6000 }
+      gemini-1.5-flash:  { calls: 350, avg_input_tokens: 30000, avg_output_tokens: 3000 }
+      gemini-2.0-flash: { calls: 200, avg_input_tokens: 8000,  avg_output_tokens: 800 }
+    est_gpu_hours: 200
+
+  - id: P5
+    title: "Live migration"
+    depends_on: [P1, P2, P3, P4]
+    requires_gpu: true
+    human_gate: true    # feasibility spike go/no-go
+    model_buckets:
+      gemini-1.5-pro:    { calls: 180, avg_input_tokens: 50000, avg_output_tokens: 6000 }
+      gemini-1.5-flash:  { calls: 400, avg_input_tokens: 30000, avg_output_tokens: 3000 }
+      gemini-2.0-flash: { calls: 200, avg_input_tokens: 8000,  avg_output_tokens: 800 }
+    est_gpu_hours: 150
+
+  - id: P6
+    title: "Hot-plug"
+    depends_on: [P2]
+    requires_gpu: true
+    human_gate: false
+    model_buckets:
+      gemini-1.5-pro:    { calls: 60,  avg_input_tokens: 50000, avg_output_tokens: 6000 }
+      gemini-1.5-flash:  { calls: 250, avg_input_tokens: 30000, avg_output_tokens: 3000 }
+      gemini-2.0-flash: { calls: 300, avg_input_tokens: 8000,  avg_output_tokens: 800 }
+    est_gpu_hours: 300
+
+  - id: P7
+    title: "Cluster / orchestration integration"
+    depends_on: [P4, P6]
+    requires_gpu: true
+    human_gate: false
+    model_buckets:
+      gemini-1.5-pro:    { calls: 50,  avg_input_tokens: 50000, avg_output_tokens: 6000 }
+      gemini-1.5-flash:  { calls: 350, avg_input_tokens: 30000, avg_output_tokens: 3000 }
+      gemini-2.0-flash: { calls: 150, avg_input_tokens: 8000,  avg_output_tokens: 800 }
+    est_gpu_hours: 200
+
+  - id: P8
+    title: "Hardening & production certification"
+    depends_on: [P3, P5, P7]
+    requires_gpu: true
+    human_gate: true    # final production gate -- must be human-reviewed
+    model_buckets:
+      gemini-1.5-pro:    { calls: 120, avg_input_tokens: 50000, avg_output_tokens: 6000 }
+      gemini-1.5-flash:  { calls: 300, avg_input_tokens: 30000, avg_output_tokens: 3000 }
+      gemini-2.0-flash: { calls: 250, avg_input_tokens: 8000,  avg_output_tokens: 800 }
+    est_gpu_hours: 500
+
+tasks: []   # populated at runtime / by hand as real tickets are created
