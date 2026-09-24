@@ -85,3 +85,18 @@ See `docs/cost_estimate.md` for the full breakdown. Headline numbers as of
 ## Current Task: Windows 2025 Provisioning
 - **ISO:** Windows Server 2025 Datacenter (Desktop Experience)
 - **Upload Status:** In progress to DataVolume \`windows-2025-iso\`
+
+## Windows 2025 Test VM
+A VirtualMachine definition has been created in \`windows-2025-vm.yaml\`. This VM is configured with:
+- **CPU:** 4 Cores
+- **Memory:** 16Gi
+- **Disk:** 100Gi (Persistent DataVolume)
+- **Boot:** EFI mode
+- **GPU:** NVIDIA L4 passthrough
+- **Installation:** Booting from the uploaded \`windows-2025-iso\`
+
+To start the VM once the upload is complete:
+\`\`\`bash
+kubectl apply -f windows-2025-vm.yaml
+virtctl start windows-2025-test
+\`\`\`

@@ -1,0 +1,71 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: windows-2025-test
+  namespace: default
+  labels:
+    kubevirt.io/vm: windows-2025-test
+spec:
+  running: false
+  template:
+    metadata:
+      labels:
+        kubevirt.io/vm: windows-2025-test
+    spec:
+      domain:
+        cpu:
+          cores: 4
+        memory:
+          guest: 16Gi
+        devices:
+          disks:
+          - name: rootdisk
+            disk:
+              bus: virtio
+          - name: iso-install
+            cdrom:
+              bus: sata
+          - name: virtiocontainerdisk
+            cdrom:
+              bus: sata
+          # GPU Placeholder - Configured for NVIDIA L4 on testg2
+          gpus:
+          - deviceName: "nvidia.com/gpu"
+            name: gpu1
+        features:
+          acpi: {}
+          apic: {}
+          hyperv:
+            relaxed: {}
+            vapic: {}
+            spinlocks:
+              spinlocks: 8192
+          smm: {}
+        firmware:
+          bootloader:
+            efi:
+              secureBoot: false
+      terminationGracePeriodSeconds: 0
+      volumes:
+      - name: rootdisk
+        dataVolume:
+          name: windows-2025-rootdisk
+      - name: iso-install
+        dataVolume:
+          name: windows-2025-iso
+      - name: virtiocontainerdisk
+        containerDisk:
+          image: quay.io/kubevirt/virtio-container-disk
+  dataVolumeTemplates:
+  - metadata:
+      name: windows-2025-rootdisk
+    spec:
+      storage:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 100Gi
+        storageClassName: standard-rwo
+      source:
+        blank: {}
