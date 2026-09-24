@@ -100,3 +100,10 @@ To start the VM once the upload is complete:
 kubectl apply -f windows-2025-vm.yaml
 virtctl start windows-2025-test
 \`\`\`
+
+## Storage Strategy (v2)
+To ensure maximum stability and avoid CDI importer permission errors in GKE Standard, the root disk is now provisioned manually:
+1. **GCE Disk:** 100GB pd-ssd created in \`us-east4-a\` (\`windows-2025-root-gce\`).
+2. **Kubernetes PV/PVC:** Static mapping via \`root-pvc.yaml\`.
+3. **Performance:** Sub-millisecond latency for Windows boot operations.
+
