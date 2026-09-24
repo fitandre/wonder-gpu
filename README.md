@@ -5,6 +5,29 @@ This project orchestrates the transformation of the **Kayfabe** research project
 ## Objective
 Enable hardware-accelerated D3D9/11/12 in Windows guests on KubeVirt/QEMU using unmodified NVIDIA drivers, bypassing proprietary licensing servers.
 
+## Infrastructure Setup
+The testing environment is a GKE Standard cluster on Google Cloud Platform.
+
+### GKE Cluster Command (Standard with Nested Virt + vGPU)
+The following command is used to provision the test cluster `testg2` in `us-east4-a` with NVIDIA L4 GPUs and nested virtualization enabled for KubeVirt Windows 2025 guests:
+
+```bash
+gcloud container clusters create testg2 \
+    --project=thewonder-ai \
+    --zone=us-east4-a \
+    --machine-type=g2-standard-24 \
+    --num-nodes=2 \
+    --image-type=UBUNTU_CONTAINERD \
+    --enable-nested-virtualization \
+    --accelerator=type=nvidia-l4,count=2 \
+    --node-labels=nvidia.com/gpu.workload.config=vm-vgpu \
+    --local-nvme-ssd-block=count=2 \
+    --enable-ip-alias \
+    --cluster-ipv4-cidr=10.100.0.0/16 \
+    --services-ipv4-cidr=10.101.0.0/20 \
+    --disk-size=100
+```
+
 ## Tech Stack
 *   **Core Logic:** Rust (Kayfabe Hexagonal Architecture)
 *   **Orchestrator:** Gemini 1.5 Pro via Google Vertex AI
