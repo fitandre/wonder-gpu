@@ -107,3 +107,12 @@ To ensure maximum stability and avoid CDI importer permission errors in GKE Stan
 2. **Kubernetes PV/PVC:** Static mapping via \`root-pvc.yaml\`.
 3. **Performance:** Sub-millisecond latency for Windows boot operations.
 
+
+## Stable SSH Access
+A NodePort service (\`windows-ssh-nodeport\`) has been configured to provide a stable entry point for PowerShell commands:
+- **Port:** 30022
+- **Command:** \`ssh Administrator@136.90.109.159 -p 30022\`
+- **Credentials:** \`@WonderWonder2026\`
+
+## GPU Status (NVIDIA L4)
+The VM has been re-configured to include the NVIDIA L4 GPU via passthrough. We are currently verifying if the \`virt-handler\` correctly maps the device plugin resource.

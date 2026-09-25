@@ -6,7 +6,7 @@ metadata:
   labels:
     kubevirt.io/vm: windows-2025-test
 spec:
-  running: false
+  runStrategy: Always
   template:
     metadata:
       labels:
@@ -20,15 +20,16 @@ spec:
         devices:
           disks:
           - name: rootdisk
+            bootOrder: 2
             disk:
               bus: virtio
           - name: iso-install
+            bootOrder: 1
             cdrom:
               bus: sata
           - name: virtiocontainerdisk
             cdrom:
               bus: sata
-          # GPU Placeholder - Configured for NVIDIA L4 on testg2
           gpus:
           - deviceName: "nvidia.com/gpu"
             name: gpu1
@@ -48,24 +49,15 @@ spec:
       terminationGracePeriodSeconds: 0
       volumes:
       - name: rootdisk
-        dataVolume:
-          name: windows-2025-rootdisk
+        persistentVolumeClaim:
+          claimName: windows-2025-root-pvc
       - name: iso-install
         dataVolume:
           name: windows-2025-iso
       - name: virtiocontainerdisk
         containerDisk:
-          image: quay.io/kubevirt/virtio-container-disk
-  dataVolumeTemplates:
-  - metadata:
-      name: windows-2025-rootdisk
-    spec:
-      storage:
-        accessModes:
-        - ReadWriteOnce
-        resources:
-          requests:
-            storage: 100Gi
-        storageClassName: standard-rwo
-      source:
-        blank: {}
+          image: quay.io/kubevirt/virtio-container-disk:v1.9.0
+      tolerations:
+      - key: "nvidia.com/gpu"
+        operator: "Exists"
+        effect: "NoSchedule"
