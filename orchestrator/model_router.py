@@ -13,6 +13,9 @@ class Task:
     phase: str
     title: str
     kind: str                  # "design_or_spike" | "implementation" | "verification" | "chore"
+    context: str = ""
+    status: str = "pending"    # "pending" | "in_progress" | "completed" | "failed"
+    depends_on: list[str] = field(default_factory=list)
     touches_paths: list[str] = field(default_factory=list)
     failure_count: int = 0
 

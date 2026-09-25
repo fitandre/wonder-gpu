@@ -1,0 +1,268 @@
+{
+  "last_updated": "2026-09-25T01:51:05.027054",
+  "ledger": [],
+  "graph": {
+    "phases": [
+      {
+        "depends_on": [],
+        "est_gpu_hours": 20,
+        "human_gate": true,
+        "id": "P0",
+        "model_buckets": {
+          "gemini-1.5-flash": {
+            "avg_input_tokens": 30000,
+            "avg_output_tokens": 3000,
+            "calls": 250
+          },
+          "gemini-1.5-pro": {
+            "avg_input_tokens": 50000,
+            "avg_output_tokens": 6000,
+            "calls": 40
+          },
+          "gemini-2.0-flash": {
+            "avg_input_tokens": 8000,
+            "avg_output_tokens": 800,
+            "calls": 150
+          }
+        },
+        "requires_gpu": false,
+        "title": "Close the foundation"
+      },
+      {
+        "depends_on": [
+          "P0"
+        ],
+        "est_gpu_hours": 150,
+        "human_gate": true,
+        "id": "P1",
+        "model_buckets": {
+          "gemini-1.5-flash": {
+            "avg_input_tokens": 30000,
+            "avg_output_tokens": 3000,
+            "calls": 500
+          },
+          "gemini-1.5-pro": {
+            "avg_input_tokens": 50000,
+            "avg_output_tokens": 6000,
+            "calls": 150
+          },
+          "gemini-2.0-flash": {
+            "avg_input_tokens": 8000,
+            "avg_output_tokens": 800,
+            "calls": 300
+          }
+        },
+        "requires_gpu": true,
+        "title": "Graphics engine & present pipeline"
+      },
+      {
+        "depends_on": [
+          "P1"
+        ],
+        "est_gpu_hours": 250,
+        "human_gate": true,
+        "id": "P2",
+        "model_buckets": {
+          "gemini-1.5-flash": {
+            "avg_input_tokens": 30000,
+            "avg_output_tokens": 3000,
+            "calls": 450
+          },
+          "gemini-1.5-pro": {
+            "avg_input_tokens": 50000,
+            "avg_output_tokens": 6000,
+            "calls": 200
+          },
+          "gemini-2.0-flash": {
+            "avg_input_tokens": 8000,
+            "avg_output_tokens": 800,
+            "calls": 250
+          }
+        },
+        "requires_gpu": true,
+        "title": "Windows guest bring-up"
+      },
+      {
+        "depends_on": [
+          "P1",
+          "P2"
+        ],
+        "est_gpu_hours": 100,
+        "human_gate": false,
+        "id": "P3",
+        "model_buckets": {
+          "gemini-1.5-flash": {
+            "avg_input_tokens": 30000,
+            "avg_output_tokens": 3000,
+            "calls": 300
+          },
+          "gemini-1.5-pro": {
+            "avg_input_tokens": 50000,
+            "avg_output_tokens": 6000,
+            "calls": 60
+          },
+          "gemini-2.0-flash": {
+            "avg_input_tokens": 8000,
+            "avg_output_tokens": 800,
+            "calls": 150
+          }
+        },
+        "requires_gpu": true,
+        "title": "Performance & data-plane redesign"
+      },
+      {
+        "depends_on": [
+          "P2"
+        ],
+        "est_gpu_hours": 200,
+        "human_gate": true,
+        "id": "P4",
+        "model_buckets": {
+          "gemini-1.5-flash": {
+            "avg_input_tokens": 30000,
+            "avg_output_tokens": 3000,
+            "calls": 350
+          },
+          "gemini-1.5-pro": {
+            "avg_input_tokens": 50000,
+            "avg_output_tokens": 6000,
+            "calls": 80
+          },
+          "gemini-2.0-flash": {
+            "avg_input_tokens": 8000,
+            "avg_output_tokens": 800,
+            "calls": 200
+          }
+        },
+        "requires_gpu": true,
+        "title": "Multi-tenant isolation"
+      },
+      {
+        "depends_on": [
+          "P1",
+          "P2",
+          "P3",
+          "P4"
+        ],
+        "est_gpu_hours": 150,
+        "human_gate": true,
+        "id": "P5",
+        "model_buckets": {
+          "gemini-1.5-flash": {
+            "avg_input_tokens": 30000,
+            "avg_output_tokens": 3000,
+            "calls": 400
+          },
+          "gemini-1.5-pro": {
+            "avg_input_tokens": 50000,
+            "avg_output_tokens": 6000,
+            "calls": 180
+          },
+          "gemini-2.0-flash": {
+            "avg_input_tokens": 8000,
+            "avg_output_tokens": 800,
+            "calls": 200
+          }
+        },
+        "requires_gpu": true,
+        "title": "Live migration"
+      },
+      {
+        "depends_on": [
+          "P2"
+        ],
+        "est_gpu_hours": 300,
+        "human_gate": false,
+        "id": "P6",
+        "model_buckets": {
+          "gemini-1.5-flash": {
+            "avg_input_tokens": 30000,
+            "avg_output_tokens": 3000,
+            "calls": 250
+          },
+          "gemini-1.5-pro": {
+            "avg_input_tokens": 50000,
+            "avg_output_tokens": 6000,
+            "calls": 60
+          },
+          "gemini-2.0-flash": {
+            "avg_input_tokens": 8000,
+            "avg_output_tokens": 800,
+            "calls": 300
+          }
+        },
+        "requires_gpu": true,
+        "title": "Hot-plug"
+      },
+      {
+        "depends_on": [
+          "P4",
+          "P6"
+        ],
+        "est_gpu_hours": 200,
+        "human_gate": false,
+        "id": "P7",
+        "model_buckets": {
+          "gemini-1.5-flash": {
+            "avg_input_tokens": 30000,
+            "avg_output_tokens": 3000,
+            "calls": 350
+          },
+          "gemini-1.5-pro": {
+            "avg_input_tokens": 50000,
+            "avg_output_tokens": 6000,
+            "calls": 50
+          },
+          "gemini-2.0-flash": {
+            "avg_input_tokens": 8000,
+            "avg_output_tokens": 800,
+            "calls": 150
+          }
+        },
+        "requires_gpu": true,
+        "title": "Cluster / orchestration integration"
+      },
+      {
+        "depends_on": [
+          "P3",
+          "P5",
+          "P7"
+        ],
+        "est_gpu_hours": 500,
+        "human_gate": true,
+        "id": "P8",
+        "model_buckets": {
+          "gemini-1.5-flash": {
+            "avg_input_tokens": 30000,
+            "avg_output_tokens": 3000,
+            "calls": 300
+          },
+          "gemini-1.5-pro": {
+            "avg_input_tokens": 50000,
+            "avg_output_tokens": 6000,
+            "calls": 120
+          },
+          "gemini-2.0-flash": {
+            "avg_input_tokens": 8000,
+            "avg_output_tokens": 800,
+            "calls": 250
+          }
+        },
+        "requires_gpu": true,
+        "title": "Hardening & production certification"
+      }
+    ],
+    "tasks": [
+      {
+        "context": "The NVIDIA L4 GPU (10de:27b8) is present on GKE nodes but KubeVirt's virt-handler \nrejects it with: 'Skipping non-vfio-pci device without vGPU profile'.\nCurrent Windows guest sees only VEN_1234&DEV_1111 (QEMU VGA).\nTask: Propose a DaemonSet or KubeVirt configuration patch to force pci-stub/vfio-pci binding \non GKE Standard nodes where /sys/bus/pci is read-only for debug pods.\n",
+        "depends_on": [],
+        "id": "T0.1",
+        "kind": "analysis",
+        "phase": "P0",
+        "status": "in_progress",
+        "title": "Root Cause Analysis: GKE GPU Passthrough Rejection"
+      }
+    ]
+  },
+  "total_cost": 0
+}

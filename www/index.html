@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wonder GPU | Live Status</title>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #020617; color: #f8fafc; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .card { background: #0f172a; border: 1px solid #1e293b; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        .active-glow { box-shadow: 0 0 15px rgba(59, 130, 246, 0.2); border-color: #3b82f6; }
+        .progress-fill { transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
+        [x-cloak] { display: none !important; }
+        @keyframes pulse-fast { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        .animate-pulse-fast { animation: pulse-fast 1s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    </style>
+</head>
+<body class="p-4 md:p-10" x-data="statusPage()" x-init="init()" x-cloak>
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4 border-b border-slate-800 pb-8">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-900/20">
+                    <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path></svg>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-white tracking-tight">Wonder GPU <span class="text-blue-500">Orchestrator</span></h1>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                        </span>
+                        <p class="text-slate-400 text-xs uppercase tracking-tighter font-semibold">Live System Status</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-slate-900 px-4 py-2 rounded-lg border border-slate-800 flex items-center gap-3">
+                <div class="text-right border-r border-slate-700 pr-3">
+                    <p class="text-[10px] text-slate-500 font-bold uppercase">Last Update</p>
+                    <p x-text="lastUpdate" class="font-mono text-xs text-blue-400">--:--:--</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-[10px] text-slate-500 font-bold uppercase">Region</p>
+                    <p class="font-mono text-xs text-slate-300">us-east4-a</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Top Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+            <div class="card p-6 relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Total AI Spend</p>
+                <p x-text="'$' + totalCost.toFixed(4)" class="text-3xl font-bold text-white tracking-tight">$0.0000</p>
+                <p class="text-[10px] text-blue-500/70 mt-2 font-mono">Gemini 1.5 Pro/Flash</p>
+            </div>
+
+            <div class="card p-6 relative overflow-hidden group">
+                <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Roadmap Progress</p>
+                <div class="flex items-end gap-2">
+                    <p x-text="overallProgress + '%'" class="text-3xl font-bold text-white tracking-tight">0%</p>
+                    <p class="text-[10px] text-slate-500 mb-1 font-bold italic">PHASE P0 ACTIVE</p>
+                </div>
+                <div class="w-full bg-slate-800 h-2 mt-4 rounded-full overflow-hidden">
+                    <div class="progress-fill bg-blue-500 h-full" :style="`width: ${overallProgress}%` shadow-lg shadow-blue-500/20"></div>
+                </div>
+            </div>
+
+            <div class="card p-6 flex flex-col justify-between">
+                <div>
+                    <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Active GPU Resources</p>
+                    <p class="text-3xl font-bold text-white tracking-tight">4 <span class="text-lg font-normal text-slate-600">NVIDIA L4</span></p>
+                </div>
+                <div class="flex gap-1 mt-4">
+                    <template x-for="i in 4">
+                        <div class="h-1 flex-1 bg-green-500/50 rounded-full"></div>
+                    </template>
+                </div>
+            </div>
+
+            <div class="card p-6 flex flex-col justify-between border-blue-500/30 bg-blue-500/5">
+                <div>
+                    <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Status</p>
+                    <div class="flex items-center gap-2">
+                        <p x-text="activeTaskStatus" class="text-lg font-bold text-blue-400">READY</p>
+                    </div>
+                </div>
+                <p class="text-[10px] text-slate-400 mt-2 line-clamp-1 italic" x-text="activeTaskTitle || 'Awaiting task allocation...'"></p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Phases List -->
+            <div class="lg:col-span-2 space-y-4">
+                <h2 class="text-sm font-bold text-slate-400 uppercase tracking-widest flex items-center mb-6">
+                    <span class="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"></span>
+                    Development Roadmap
+                </h2>
+                
+                <template x-for="phase in phases" :key="phase.id">
+                    <div class="card p-5 transition-all duration-500 hover:border-slate-700" 
+                         :class="phase.status === 'completed' ? 'opacity-40 grayscale pointer-events-none' : (phase.status === 'in_progress' ? 'active-glow border-blue-500/50' : '')">
+                        <div class="flex justify-between items-start">
+                            <div class="flex gap-4">
+                                <div class="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-sm"
+                                     :class="phase.status === 'completed' ? 'bg-slate-800 text-slate-500' : 'bg-blue-900/30 text-blue-400 border border-blue-500/20'">
+                                    <span x-text="phase.id"></span>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-slate-100" x-text="phase.title"></h3>
+                                    <div class="flex items-center gap-3 mt-1">
+                                        <span class="text-[10px] font-mono text-slate-500" x-text="phase.est_gpu_hours + ' GPU hrs est.'"></span>
+                                        <template x-if="phase.human_gate">
+                                            <span class="text-[9px] bg-amber-900/20 text-amber-500 px-1.5 py-0.5 rounded border border-amber-500/20 font-bold uppercase">Human Gate</span>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="text-[10px] px-2 py-1 rounded font-bold uppercase tracking-tight"
+                                  :class="phase.status === 'completed' ? 'bg-green-900/20 text-green-500' : (phase.status === 'in_progress' ? 'bg-blue-900/30 text-blue-400 animate-pulse' : 'bg-slate-800 text-slate-500')">
+                                <span x-text="phase.status.replace('_', ' ')"></span>
+                            </span>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Side Ledger -->
+            <div class="space-y-6">
+                <h2 class="text-sm font-bold text-slate-400 uppercase tracking-widest flex items-center mb-6">
+                    <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></span>
+                    Resource Ledger
+                </h2>
+                
+                <div class="card p-2 overflow-hidden border-green-500/20 bg-green-500/5">
+                    <table class="w-full text-left">
+                        <thead class="text-[10px] text-slate-500 font-bold uppercase border-b border-slate-800">
+                            <tr>
+                                <th class="p-3">Model Tier</th>
+                                <th class="p-3 text-right">M.Tokens</th>
+                                <th class="p-3 text-right">Cost</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-xs font-mono">
+                            <template x-for="item in ledger" :key="item.model_id">
+                                <tr class="border-b border-slate-800/50 last:border-0 hover:bg-white/5 transition-colors">
+                                    <td class="p-3 text-blue-400 font-bold" x-text="item.model_id.replace('gemini-', '')"></td>
+                                    <td class="p-3 text-right text-slate-400" x-text="((item.input + item.output + (item.cache || 0)) / 1000000).toFixed(2)"></td>
+                                    <td class="p-3 text-right text-white font-bold" x-text="'$' + item.cost.toFixed(2)"></td>
+                                </tr>
+                            </template>
+                            <template x-if="ledger.length === 0">
+                                <tr>
+                                    <td colspan="3" class="p-10 text-center text-slate-600 italic">No usage recorded yet</td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card p-6 border-slate-800">
+                    <h4 class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4">Infrastructure Health</h4>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-400">GKE Cluster</span>
+                            <span class="text-green-500 font-bold">STABLE</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-400">KubeVirt v1.9.0</span>
+                            <span class="text-green-500 font-bold">READY</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-400">Windows 2025 VMI</span>
+                            <span class="text-blue-500 font-bold">RUNNING</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function statusPage() {
+            return {
+                lastUpdate: '--:--:--',
+                totalCost: 0,
+                overallProgress: 0,
+                phases: [],
+                ledger: [],
+                activeTaskStatus: 'IDLE',
+                activeTaskTitle: '',
+
+                async init() {
+                    await this.fetchData();
+                    setInterval(() => this.fetchData(), 10000);
+                },
+
+                async fetchData() {
+                    try {
+                        const res = await fetch('status.json?t=' + Date.now());
+                        const data = await res.json();
+                        
+                        this.lastUpdate = new Date(data.last_updated).toLocaleTimeString();
+                        this.totalCost = data.total_cost || 0;
+                        this.ledger = data.ledger || [];
+                        
+                        const graphPhases = data.graph.phases;
+                        const tasks = data.graph.tasks || [];
+                        
+                        let completedCount = 0;
+                        this.phases = graphPhases.map(p => {
+                            const phaseTasks = tasks.filter(t => t.phase === p.id);
+                            let status = 'pending';
+                            
+                            if (phaseTasks.some(t => t.status === 'in_progress')) {
+                                status = 'in_progress';
+                                const activeTask = phaseTasks.find(t => t.status === 'in_progress');
+                                this.activeTaskStatus = 'PROCESSING';
+                                this.activeTaskTitle = activeTask.title;
+                            } else if (phaseTasks.length > 0 && phaseTasks.every(t => t.status === 'completed')) {
+                                status = 'completed';
+                                completedCount++;
+                            }
+                            
+                            return { ...p, status };
+                        });
+
+                        this.overallProgress = Math.round((completedCount / graphPhases.length) * 100);
+                        
+                        if (completedCount === 0 && !tasks.some(t => t.status === 'in_progress')) {
+                            this.activeTaskStatus = 'READY';
+                            this.activeTaskTitle = tasks.length > 0 ? tasks[0].title : '';
+                        }
+
+                    } catch (e) {
+                        console.error("Poll error:", e);
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

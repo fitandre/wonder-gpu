@@ -1,0 +1,25 @@
+gcp:
+  project_id: thewonder-ai
+  use_global_endpoint: true
+  vertex_region: us-central1
+human_gate_required_for_paths:
+- crates/kayfabe-linux-raw/**
+- crates/kayfabe-qemu-raw/**
+- '**/*_unsafe.rs'
+- docs/design/core_security_threat_model.md
+- crates/kayfabe-core/**
+repo:
+  base_branch: main
+  path: /home/ubuntu/projects/wonder-gpu
+  work_branch_prefix: loop/
+routing:
+  chore: gemini-2.0-flash
+  default: gemini-1.5-flash
+  design_or_spike: gemini-1.5-pro
+  escalate_after_failures: 3
+  implementation: gemini-1.5-flash
+  verification: gemini-1.5-flash
+testing:
+  gpu_job_image: gcr.io/YOUR_GCP_PROJECT_ID/kayfabe-gpu-test-runner:latest
+  gpu_job_timeout_seconds: 3600
+  local_cmd: cargo test --workspace --no-fail-fast

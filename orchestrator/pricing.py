@@ -20,7 +20,7 @@ class ModelPricing:
 
 PRICING = {
     "gemini-1.5-pro": ModelPricing(
-        vertex_model_id="gemini-1.5-pro",
+        vertex_model_id="gemini-3.1-pro-preview",
         input_per_mtok=1.25,
         output_per_mtok=3.75,
         cache_read_per_mtok=0.125,
@@ -28,7 +28,7 @@ PRICING = {
         max_output=8192,
     ),
     "gemini-1.5-flash": ModelPricing(
-        vertex_model_id="gemini-1.5-flash",
+        vertex_model_id="gemini-3.5-flash",
         input_per_mtok=0.075,
         output_per_mtok=0.30,
         cache_read_per_mtok=0.0075,
@@ -36,10 +36,18 @@ PRICING = {
         max_output=8192,
     ),
     "gemini-2.0-flash": ModelPricing(
-        vertex_model_id="gemini-2.0-flash-exp",
+        vertex_model_id="gemini-3.1-flash-lite",
         input_per_mtok=0.10,
         output_per_mtok=0.40,
         cache_read_per_mtok=0.01,
+        context_window=1_000_000,
+        max_output=8192,
+    ),
+    "gemini-3-flash": ModelPricing(
+        vertex_model_id="gemini-3-flash-preview",
+        input_per_mtok=0.075,
+        output_per_mtok=0.30,
+        cache_read_per_mtok=0.0075,
         context_window=1_000_000,
         max_output=8192,
     ),

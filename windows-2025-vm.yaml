@@ -30,9 +30,7 @@ spec:
           - name: virtiocontainerdisk
             cdrom:
               bus: sata
-          gpus:
-          - deviceName: "nvidia.com/gpu"
-            name: gpu1
+          # GPU removida para diagnóstico de tela
         features:
           acpi: {}
           apic: {}
@@ -57,7 +55,3 @@ spec:
       - name: virtiocontainerdisk
         containerDisk:
           image: quay.io/kubevirt/virtio-container-disk:v1.9.0
-      tolerations:
-      - key: "nvidia.com/gpu"
-        operator: "Exists"
-        effect: "NoSchedule"
